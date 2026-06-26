@@ -576,3 +576,6 @@ ORDER BY M1.MOVIE_NUM;
 8 rows in set (0.004 sec)
 
 
+
+7.28: To maintain ExpensiveParts as a materialized view, you would implement a combination of triggers and a summary table. The view can be maintained without accessing the Part table in scenarios where the trigger has sufficient information from the operation itself. For INSERT operations, the trigger knows the new partCost, so if it exceeds £1000, the partNo can be directly inserted into the view. For UPDATE operations, the trigger has access to both OLD and NEW values, allowing it to determine if the part crosses the threshold - inserting when going from ≤1000 to >1000, and deleting when going from >1000 to ≤1000. For DELETE operations, the trigger knows the partCost of the deleted row, so it can remove the partNo from the view if needed. However, the Part table must be accessed when multiple contracts exist for the same part, because the trigger needs to verify whether any other contracts for that part still have partCost > 1000 before deciding to keep or remove the partNo from the materialized view.
+
